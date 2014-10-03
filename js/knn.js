@@ -16,18 +16,24 @@ function drawCanvas() {
             canvasData.data[pixelIndex] = closestElement.color.r;
             canvasData.data[pixelIndex + 1] = closestElement.color.g;
             canvasData.data[pixelIndex + 2] = closestElement.color.b;
-
             canvasData.data[pixelIndex + 3] = 255;
         }
     }
 
     knnCanvasContext.putImageData(canvasData, 0, 0);
+
+    for (var dataIndex = 0; dataIndex < data.length; dataIndex++) {
+        var currentData = data[dataIndex];
+        knnCanvasContext.rect(currentData.x - 3, currentData.y - 3, 6, 6);
+        knnCanvasContext.fillStyle = "black";
+        knnCanvasContext.fill();
+    }
 }
 
 function placePoint(event) {
     data.push({
-        x: event.clientX,
-        y: event.clientY,
+        x: event.clientX - knnCanvas.offsetTop,
+        y: event.clientY - knnCanvas.offsetLeft,
         color: {
             r: Math.floor(Math.random() * 256),
             g: Math.floor(Math.random() * 256),
