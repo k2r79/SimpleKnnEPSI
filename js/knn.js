@@ -11,7 +11,7 @@ function drawCanvas() {
         for (var x = 0; x < knnCanvas.width; x++) {
             var pixelIndex = (x + y * knnCanvas.width) * 4;
 
-            var closestNeighboor = findClosestNeighboor(x, y, tree).point;
+            var closestNeighboor = findClosestNeighboor(x, y, tree, null, null).point;
 
             canvasData.data[pixelIndex] = closestNeighboor.color.r;
             canvasData.data[pixelIndex + 1] = closestNeighboor.color.g;
@@ -23,13 +23,6 @@ function drawCanvas() {
     drawNodePointLocators(tree);
 
     knnCanvasContext.putImageData(canvasData, 0, 0);
-
-    /*for (var dataIndex = 0; dataIndex < points.length; dataIndex++) {
-        var currentData = points[dataIndex];
-        knnCanvasContext.rect(currentData.x - 3, currentData.y - 3, 6, 6);
-        knnCanvasContext.fillStyle = "black";
-        knnCanvasContext.fill();
-    }*/
 }
 
 function placePoint(event) {
@@ -96,18 +89,25 @@ function drawNodePointLocators(node) {
     }
 }
 
-function findClosestNeighboor(x, y, node) {
+function findClosestNeighboor(x, y, node, closestNode, closestDistance) {
+    var distance = Math.pow(x - node.point.x, 2) + Math.pow(y - node.point.y, 2);
+
+    if (!closestNode || distance < closestDistance) {
+        closestNode = node;
+        closestDistance = distance;
+    }
+
     if (node.orientation == 'V') {
         if (x < node.point.x) {
-            return node.leftNode ? findClosestNeighboor(x, y, node.leftNode) : node;
+            return node.leftNode ? findClosestNeighboor(x, y, node.leftNode, closestNode, closestDistance) : closestNode;
         } else {
-            return node.rightNode ? findClosestNeighboor(x, y, node.rightNode) : node;
+            return node.rightNode ? findClosestNeighboor(x, y, node.rightNode, closestNode, closestDistance) : closestNode;
         }
     } else {
         if (y > node.point.y) {
-            return node.leftNode ? findClosestNeighboor(x, y, node.leftNode) : node;
+            return node.leftNode ? findClosestNeighboor(x, y, node.leftNode, closestNode, closestDistance) : closestNode;
         } else {
-            return node.rightNode ? findClosestNeighboor(x, y, node.rightNode) : node;
+            return node.rightNode ? findClosestNeighboor(x, y, node.rightNode, closestNode, closestDistance) : closestNode;
         }
     }
 }
