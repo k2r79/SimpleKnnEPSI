@@ -41,7 +41,13 @@ function placePoint(event) {
         }
     });
 
+    var timeToExecute = performance.now();
+
     drawCanvas();
+
+    timeToExecute = performance.now() - timeToExecute;
+
+    console.log(data.length + " points in " + timeToExecute + "ms");
 }
 
 function findClosestNeighboor(x, y) {
