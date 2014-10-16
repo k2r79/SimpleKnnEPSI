@@ -92,44 +92,55 @@ function drawNodePointLocators(node) {
 function findClosestNeighboor(x, y, node, closestNodeObject) {
     var distance = computeDistanceFromPoint(x, y, node);
 
+    var distanceFromNode;
+    if (node.orientation == 'V') {
+        distanceFromNode = node.point.x - x;
+    } else {
+        distanceFromNode = node.point.y - y;
+    }
+
     if (!closestNodeObject.closestNode || distance < closestNodeObject.closestDistance) {
         closestNodeObject.closestNode = node;
         closestNodeObject.closestDistance = distance;
     }
 
+    if (!node.leftNode && !node.rightNode) {
+        return closestNodeObject;
+    }
+
+    var bestChild = null;
     if (node.orientation == 'V') {
-        if (x < node.point.x) {
-            closestNodeObject = node.leftNode ? findClosestNeighboor(x, y, node.leftNode, closestNodeObject) : closestNodeObject;
-
-            if (x + distance > node.point.x) {
-                closestNodeObject = node.rightNode ? findClosestNeighboor(x, y, node.rightNode, closestNodeObject) : closestNodeObject;
-            }
+        if (distanceFromNode > 0) {
+            bestChild = node.leftNode;
         } else {
-            closestNodeObject = node.rightNode ? findClosestNeighboor(x, y, node.rightNode, closestNodeObject) : closestNodeObject;
-
-            if (x - distance < node.point.x) {
-                closestNodeObject = node.leftNode ? findClosestNeighboor(x, y, node.leftNode, closestNodeObject) : closestNodeObject;
-            }
+            bestChild = node.rightNode;
         }
     } else {
-        if (y > node.point.y) {
-            closestNodeObject = node.leftNode ? findClosestNeighboor(x, y, node.leftNode, closestNodeObject) : closestNodeObject;
-
-            if (y - distance < node.point.y) {
-                closestNodeObject = node.rightNode ? findClosestNeighboor(x, y, node.rightNode, closestNodeObject) : closestNodeObject;
-            }
+        if (distanceFromNode < 0) {
+            bestChild = node.leftNode;
         } else {
-            closestNodeObject = node.rightNode ? findClosestNeighboor(x, y, node.rightNode, closestNodeObject) : closestNodeObject;
-
-            if (y + distance > node.point.y) {
-                closestNodeObject = node.leftNode ? findClosestNeighboor(x, y, node.leftNode, closestNodeObject) : closestNodeObject;
-            }
+            bestChild = node.rightNode;
         }
+    }
+
+    if (bestChild) {
+        closestNodeObject = findClosestNeighboor(x, y, bestChild, closestNodeObject);
+    }
+
+    var secondBestChild = null;
+    if (distanceFromNode < closestNodeObject.closestDistance) {
+        if (bestChild == node.leftNode) {
+            secondBestChild = node.rightNode;
+        } else {
+            secondBestChild = node.leftNode;
+        }
+
+        closestNodeObject = secondBestChild ? findClosestNeighboor(x, y, secondBestChild, closestNodeObject) : closestNodeObject;
     }
 
     return closestNodeObject;
 }
 
 function computeDistanceFromPoint(x, y, node) {
-    return Math.sqrt(Math.pow(x - node.point.x, 2) + Math.pow(y - node.point.y, 2));
+    return Math.pow(x - node.point.x, 2) + Math.pow(y - node.point.y, 2);
 }
